@@ -1,0 +1,6 @@
+{
+    "watch": "Index.ts",
+    "execMap": {
+      "ts": "ts-node"
+    }
+  }
