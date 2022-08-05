@@ -1,13 +1,14 @@
 import {JWT_SECRET_KEY} from "@config/config"
 import db from "@config/DB";
+import {rs} from "@config/redis";
 import 'crypto-js';
 import {ICredential, ISignIn} from "../../Interface";
 import status from "http-status";
 import {decryptAES, encodeJWT} from "@src/utils/helper";
 
-const refreshList = ["93483412", "23233411"];
+export async function signIn({username, password}:ICredential):Promise<ISignIn> {
 
-export function signIn({username, password}:ICredential):ISignIn {
+    let refreshList:string[] = await rs.sMembers("jwtRT");
 
     return db("user")
     .where('username', '=', username)
@@ -21,7 +22,7 @@ export function signIn({username, password}:ICredential):ISignIn {
                 message: "Login Successfully",
                 token: {
                     accessToken: encodeJWT(JWT_SECRET_KEY??"", resp.uuid, 180),
-                    refreshToken: encodeJWT(JWT_SECRET_KEY??"", refreshList[Math.floor(Math.random() * 2)], 300),
+                    refreshToken: encodeJWT(JWT_SECRET_KEY??"", refreshList[Math.floor(Math.random() * 5)], 300),
                 }
             }
 

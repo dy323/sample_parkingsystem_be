@@ -3,8 +3,7 @@ import {Request, Response, NextFunction} from "express";
 import {decodeJWT} from "@src/utils/helper";
 import status from "http-status";
 import {encodeJWT} from "@src/utils/helper";
-
-const refreshList = ["93483412", "23233411"];
+import {rs} from "@config/redis";
 
 function unauthorizedReport(resp: Response, errorMsg: string){
     resp.clearCookie("ParkAT");
@@ -14,7 +13,11 @@ function unauthorizedReport(resp: Response, errorMsg: string){
     })
 }
 
-export function jwtMiddleware(request: Request, response: Response, next: NextFunction) {
+export async function jwtMiddleware(request: Request, response: Response, next: NextFunction) {
+
+    let refreshList:string[] = await rs.sMembers("jwtRT");
+
+    console.log(refreshList)
 
     //check cookie available
     const accessToken = request.cookies.ParkAT;
@@ -33,7 +36,7 @@ export function jwtMiddleware(request: Request, response: Response, next: NextFu
     }
 
     //check if token is correct
-    if (!refreshList.includes(rt?.session?.data)) {
+    if (!await rs.sIsMember("jwtRT", rt?.session?.data)){
         return unauthorizedReport(response, "Refresh token is not genuine")
     }
 
@@ -42,6 +45,8 @@ export function jwtMiddleware(request: Request, response: Response, next: NextFu
         params: request.body
     }
 
+    console.log(rt);
+
     //renew tokens to cookie
     response.cookie('ParkAT', encodeJWT(JWT_SECRET_KEY??"", at?.session?.data, 180), {
         maxAge: 10000,
@@ -49,7 +54,7 @@ export function jwtMiddleware(request: Request, response: Response, next: NextFu
         httpOnly:false
     })
 
-    response.cookie('ParkRT', encodeJWT(JWT_SECRET_KEY??"", refreshList[Math.floor(Math.random() * 2)], 300), {
+    response.cookie('ParkRT', encodeJWT(JWT_SECRET_KEY??"", refreshList[Math.floor(Math.random() * 5)], 300), {
         maxAge: 10000,
         secure: false,
         httpOnly:false

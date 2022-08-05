@@ -1,6 +1,6 @@
 import {Router} from 'express';
-import { getAllUser, inputUser, editMemberShip, assignSlot} from '../controllers/user';
-import {jwtMiddleware} from "../middlewares/JWT"
+import { getAllUser, inputUser, editMemberShip, assignSlot} from '@src/controllers/user';
+import {jwtMiddleware} from "@src/middlewares/JWT"
 
 const adminRouter = Router();
 

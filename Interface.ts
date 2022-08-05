@@ -23,7 +23,7 @@ export interface IDecodeJWT {
     session ?: JwtPayload,
 }
 
-//daos func response
+//daos - func response
 export interface IDaosResp {
     status: number,
     data ?: {
